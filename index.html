@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TerraStep is an interactive carbon footprint tracker and action tool designed to help you analyze, understand, and reduce your annual greenhouse gas emissions.">
+  <title>TerraStep | Interactive Carbon Tracker & Action Hub</title>
+  
+  <!-- Font Integrations -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Icon Integrations -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- ChartJS via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Sticky Navigation Header -->
+  <header>
+    <div class="navbar">
+      <a href="#" class="logo">
+        <i class="fas fa-leaf"></i> TerraStep
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#" class="nav-link active" data-tab="dashboard" id="nav-dashboard"><i class="fas fa-chart-pie"></i> Dashboard</a></li>
+          <li><a href="#" class="nav-link" data-tab="tracker" id="nav-tracker"><i class="fas fa-sliders-h"></i> Tracker</a></li>
+          <li><a href="#" class="nav-link" data-tab="actions" id="nav-actions"><i class="fas fa-hand-holding-heart"></i> Action Hub</a></li>
+          <li><a href="#" class="nav-link" data-tab="education" id="nav-education"><i class="fas fa-graduation-cap"></i> Learn</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+
+    <!-- ==========================================
+         DASHBOARD SECTION (Default Tab)
+         ========================================== -->
+    <section id="dashboard-section" class="tab-section active-section">
+      
+      <!-- Top Metrics Overview -->
+      <div class="metrics-grid">
+        <div class="metric-card secondary">
+          <h3>Gross Emissions</h3>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="gross-footprint-val">0.0</span>
+            <span class="metric-unit">t</span>
+          </div>
+          <div class="metric-footer">Direct estimated output</div>
+        </div>
+        
+        <div class="metric-card warning">
+          <h3>Pledged Savings</h3>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="reductions-val">0.0</span>
+            <span class="metric-unit">t</span>
+          </div>
+          <div class="metric-footer">From adopted actions</div>
+        </div>
+
+        <div class="metric-card primary">
+          <h3>Net Carbon Footprint</h3>
+          <div class="metric-value-wrap">
+            <span class="metric-number" id="net-footprint-val">0.0</span>
+            <span class="metric-unit">t</span>
+          </div>
+          <div class="metric-footer">CO2e tons / year</div>
+        </div>
+      </div>
+
+      <!-- Hero Visualization Split -->
+      <div class="dashboard-hero-grid">
+        
+        <!-- Left Panel: Dial and Benchmark Scale -->
+        <div class="panel gauge-panel">
+          <h3 style="font-family: var(--font-title); margin-bottom: 1.5rem; text-align: center;">Carbon Footprint Gauge</h3>
+          <div class="gauge-container">
+            <div class="gauge-rainbow"></div>
+            <div class="gauge-needle" id="gauge-needle"></div>
+          </div>
+          <div class="gauge-labels">
+            <span>0 t</span>
+            <span>10 t</span>
+            <span>20 t+</span>
+          </div>
+          
+          <!-- Comparative Benchmark Axis -->
+          <div class="benchmark-card" style="width: 100%;">
+            <div class="benchmark-axis">
+              <div class="benchmark-zone zone-paris"></div>
+              <div class="benchmark-zone zone-global"></div>
+              <div class="benchmark-zone zone-us"></div>
+              
+              <div id="benchmark-marker"></div>
+              
+              <!-- Ticks -->
+              <div class="benchmark-tick" style="left: 10%;">2.0t<br><span style="font-size: 0.65rem;">Paris</span></div>
+              <div class="benchmark-tick" style="left: 29.5%;">4.7t<br><span style="font-size: 0.65rem;">Global Avg</span></div>
+              <div class="benchmark-tick" style="left: 80%;">16.0t<br><span style="font-size: 0.65rem;">US Avg</span></div>
+            </div>
+            <div class="comparison-box" id="comparison-desc">
+              Loading comparisons...
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel: Chart.js Breakdown -->
+        <div class="panel">
+          <h3 style="font-family: var(--font-title); margin-bottom: 0.5rem;">Emissions Breakdown</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Visualizing your footprint across life categories</p>
+          <div class="chart-container">
+            <canvas id="emissions-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Dashboard Layout: Badges & Active Pledges Checklist -->
+      <div class="dashboard-hero-grid">
+        
+        <!-- Accomplishments / Eco-Badges Grid -->
+        <div class="panel badges-container" style="flex-grow: 1.5;">
+          <h3>Eco Achievements</h3>
+          <div class="badges-grid" id="badges-grid">
+            <!-- Badges dynamically rendered here -->
+          </div>
+        </div>
+
+        <!-- My Active Pledges Panel -->
+        <div class="panel" style="flex-grow: 1;">
+          <h3 style="font-family: var(--font-title); margin-bottom: 0.5rem;"><i class="fas fa-handshake"></i> Active Pledges</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Deducting from your net score in real-time</p>
+          <div class="active-pledges-container" id="active-pledges-list">
+            <!-- Pledges list items rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==========================================
+         TRACKER / CALCULATOR SECTION
+         ========================================== -->
+    <section id="tracker-section" class="tab-section hidden">
+      
+      <!-- Preset Controller Header -->
+      <div class="panel presets-container">
+        <div class="preset-intro">
+          <h3 style="font-family: var(--font-title); font-size: 1.15rem; margin-bottom: 0.2rem;"><i class="fas fa-magic"></i> Quick Profiles</h3>
+          <p style="font-size: 0.85rem; color: var(--text-secondary);">Select a preset profile to instantly populate fields, or adjust manually below.</p>
+        </div>
+        <div class="preset-btns">
+          <button class="preset-btn" data-preset="eco"><i class="fas fa-seedling"></i> Eco-Conscious</button>
+          <button class="preset-btn active" data-preset="average"><i class="fas fa-user"></i> Average Citizen</button>
+          <button class="preset-btn" data-preset="high"><i class="fas fa-car-crash"></i> High Carbon</button>
+        </div>
+      </div>
+
+      <!-- Categories Input Grid -->
+      <div class="tracker-sections-grid">
+        
+        <!-- Category 1: Home Energy -->
+        <div class="panel tracker-group energy">
+          <h3><i class="fas fa-home"></i> Home Energy</h3>
+          
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="electricity">
+                Electricity Bill
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Your home's monthly electrical grid usage. Check your utility statement or estimate based on household size.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="electricity-val">350 kWh/mo</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="electricity" min="50" max="2000" step="25" value="350">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="greenElectricity">
+                Renewable Energy Percentage
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of your electricity sourced from wind, solar, or hydro. If you have solar panels or a green utility plan, set this higher.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="greenElectricity-val">20%</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="greenElectricity" min="0" max="100" step="5" value="20">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="heatingType">
+                Heating Fuel Type
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Select your household's primary winter heating energy source. Electric includes heat pumps. Biomass utilizes wood pellets.</span>
+                </span>
+              </label>
+            </div>
+            <select class="form-select calc-input" id="heatingType">
+              <option value="gas">Natural Gas</option>
+              <option value="oil">Heating Oil / LPG</option>
+              <option value="electric">Electricity (Heat Pump/Grid)</option>
+              <option value="biomass">Biomass / Wood</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="heatingAmount">
+                Heating Usage
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Estimated heating fuel consumed monthly (measured in equivalent kWh usage). Adjust based on winter climate severity.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="heatingAmount-val">600 kWh/mo</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="heatingAmount" min="0" max="3000" step="50" value="600">
+          </div>
+        </div>
+
+        <!-- Category 2: Transportation -->
+        <div class="panel tracker-group transport">
+          <h3><i class="fas fa-car"></i> Transportation</h3>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="carType">
+                Personal Vehicle Fuel Type
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">The engine fuel system of your primary private vehicle. If you do not own a vehicle, set distance to 0.</span>
+                </span>
+              </label>
+            </div>
+            <select class="form-select calc-input" id="carType">
+              <option value="petrol">Petrol Engine (Gasoline)</option>
+              <option value="diesel">Diesel Engine</option>
+              <option value="hybrid">Hybrid Engine (PHEV/HEV)</option>
+              <option value="electric">Electric Vehicle (EV)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="carDist">
+                Annual Driving Distance
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Estimated distance driven in a personal car per year (kilometers). Average is 10,000 to 12,000 km.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="carDist-val">11,000 km/yr</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="carDist" min="0" max="50000" step="500" value="11000">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="busHours">
+                Public Transit: Bus
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Weekly hours spent riding commuter buses. Buses average around 20-30 km/hr in mixed traffic.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="busHours-val">2 hrs/wk</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="busHours" min="0" max="30" step="1" value="2">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="trainHours">
+                Public Transit: Rail / Train
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Weekly hours spent riding electric passenger trains, metro lines, or subways. Highly carbon efficient per passenger.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="trainHours-val">1 hrs/wk</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="trainHours" min="0" max="30" step="1" value="1">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="flightShort">
+                Short-Haul Flights
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Total annual flight hours on routes under 3 hours (regional flights). Flights have high take-off carbon penalties.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="flightShort-val">4 hrs/yr</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="flightShort" min="0" max="50" step="1" value="4">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="flightLong">
+                Long-Haul Flights
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Total annual flight hours on routes over 3 hours (continental/transoceanic flights). Cruise phases consume heavy jet fuel volumes.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="flightLong-val">8 hrs/yr</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="flightLong" min="0" max="100" step="2" value="8">
+          </div>
+        </div>
+
+        <!-- Category 3: Diet & Food -->
+        <div class="panel tracker-group diet">
+          <h3><i class="fas fa-utensils"></i> Diet & Food</h3>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="dietType">
+                Primary Diet Type
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Select your overall eating style. Meat-heavy diets (specifically beef/lamb) require heavy agricultural resources and create high emissions.</span>
+                </span>
+              </label>
+            </div>
+            <select class="form-select calc-input" id="dietType">
+              <option value="heavyMeat">Heavy Meat Eater (Daily beef/pork)</option>
+              <option value="mediumMeat">Moderate Meat Eater (Frequent chicken, poultry, occasional beef)</option>
+              <option value="lowMeat">Flexitarian / Low Meat (Mostly vegetarian, meat occasionally)</option>
+              <option value="vegetarian">Vegetarian (No meat, consumes eggs & dairy)</option>
+              <option value="vegan">Vegan (100% plant-based diet)</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="localFood">
+                Locally Sourced Food Ratio
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of groceries grown or raised locally. Reduces transport emissions (food miles) and packaging footprints.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="localFood-val">30%</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="localFood" min="0" max="100" step="5" value="30">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="foodWaste">
+                Estimated Food Waste
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of purchased groceries that end up spoiled or thrown away. Reducing waste cuts upstream agricultural carbon costs.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="foodWaste-val">15% waste</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="foodWaste" min="0" max="50" step="1" value="15">
+          </div>
+        </div>
+
+        <!-- Category 4: Waste & Shopping -->
+        <div class="panel tracker-group waste">
+          <h3><i class="fas fa-shopping-bag"></i> Waste & Consumption</h3>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="wasteBags">
+                Garbage Output
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Estimated standard bags of rubbish thrown away (destined for landfill) per week by your household.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="wasteBags-val">3 bags/wk</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="wasteBags" min="1" max="10" step="1" value="3">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="recyclePaper">
+                Paper/Cardboard Recycling
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of waste paper, newspapers, and packaging boxes that you successfully sort and recycle.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="recyclePaper-val">50%</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="recyclePaper" min="0" max="100" step="5" value="50">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="recyclePlastic">
+                Plastic & Can Recycling
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of soda cans, plastic bottles, containers, and aluminum foil that you successfully recycle.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="recyclePlastic-val">40%</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="recyclePlastic" min="0" max="100" step="5" value="40">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="recycleGlass">
+                Glass Bottle Recycling
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Percentage of glass jars, bottles, and culinary glass sorted into special recycling streams.</span>
+                </span>
+              </label>
+              <span class="form-val-display" id="recycleGlass-val">50%</span>
+            </div>
+            <input type="range" class="form-range calc-input" id="recycleGlass" min="0" max="100" step="5" value="50">
+          </div>
+
+          <div class="form-field">
+            <div class="form-label-wrap">
+              <label for="shoppingStyle">
+                Purchasing Habits
+                <span class="tooltip-icon"><i class="fas fa-info-circle"></i>
+                  <span class="tooltip-text">Reflects clothing, electronic devices, and consumer goods shopping volume. Manufacturing goods accounts for vast supply-chain carbon.</span>
+                </span>
+              </label>
+            </div>
+            <select class="form-select calc-input" id="shoppingStyle">
+              <option value="minimal">Minimalist (Buy only essentials, secondhand first)</option>
+              <option value="average">Moderate Consumer (Standard seasonal updates, electronics when broken)</option>
+              <option value="high">Frequent Shopper (Fast fashion, frequent brand new tech upgrades)</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==========================================
+         ACTION HUB SECTION (Pledges list)
+         ========================================== -->
+    <section id="actions-section" class="tab-section hidden">
+      
+      <div class="panel actions-intro">
+        <h2 style="font-family: var(--font-title); margin-bottom: 0.5rem;"><i class="fas fa-hand-holding-heart"></i> Personal Eco-Pledges</h2>
+        <p>Adopting any of the pledges below will dynamically deduct the estimated carbon savings from your dashboard score. Choose habits that work for your lifestyle!</p>
+      </div>
+
+      <div class="pledges-grid" id="pledges-catalog">
+        <!-- Pledges loaded via JavaScript actions.js list -->
+      </div>
+
+    </section>
+
+    <!-- ==========================================
+         EDUCATION & AWARENESS SECTION
+         ========================================== -->
+    <section id="education-section" class="tab-section hidden">
+      
+      <div class="panel edu-grid">
+        
+        <div class="edu-article">
+          <h2>Understanding Carbon Footprints</h2>
+          <p>A carbon footprint represents the total greenhouse gases (principally carbon dioxide, methane, and nitrous oxide) generated by our actions, expressed as <strong>CO2 equivalent (CO2e) tons</strong>.</p>
+          
+          <h3>Why Does Tracking Help?</h3>
+          <p>Most carbon emissions remain invisible to us. By breaking down household heating, utility usages, flights, diets, and waste, we identify high-impact options to trim our scores. A single average citizen in the Western hemisphere produces around 12 to 16 metric tons of CO2e annually, whereas to avoid catastrophic climate changes, research indicates we need to lower the global average footprint per person to <strong>under 2.0 tons by 2050</strong>.</p>
+          
+          <h3>Individual vs. Systemic Change</h3>
+          <p>While shifting personal habits like eating plant-based foods, riding bicycles, or composting cuts individual emissions, it also creates consumer demand for green grid structures, public rail infrastructure, and plastic-free packaging, accelerating systemic decarbonization worldwide.</p>
+          
+          <h3>Calculation Transparency (Our Carbon Math)</h3>
+          <p>Emission factors configured within TerraStep represent generalized standards from climate bodies (EPA, DEFRA, IPCC):</p>
+          <ul style="margin-left: 1.5rem; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            <li>Electricity produces ~0.38 kg CO2e per kWh depending on grid mix.</li>
+            <li>Petrol cars create ~0.17 kg CO2e per km; electric cars emit ~0.04 kg CO2e/km (grid emissions).</li>
+            <li>Riding trains or buses produces ~80% less carbon per passenger than private driving.</li>
+            <li>Red meat production accounts for massive carbon costs due to grazing footprint land use and methane emission outputs from herds.</li>
+          </ul>
+        </div>
+
+        <div class="edu-cards">
+          <h3 style="font-family: var(--font-title); margin-bottom: 0.5rem; margin-top: 0;">Parameter Awareness Guide</h3>
+          
+          <div class="info-card">
+            <div class="info-card-icon energy"><i class="fas fa-bolt"></i></div>
+            <div class="info-card-body">
+              <h4>Energy Footprint</h4>
+              <p>Heating air and water consumes major grid resources. Lowering your thermostat, washing laundry in cold cycles, and sealing drafty windows drastically reduces utility grid load.</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon transport"><i class="fas fa-plane"></i></div>
+            <div class="info-card-body">
+              <h4>Transportation Emissions</h4>
+              <p>Transport is a massive direct emission source. Short regional flights are highly inefficient; trains and electric buses provide clean regional connections.</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon diet"><i class="fas fa-pepper-hot"></i></div>
+            <div class="info-card-body">
+              <h4>Diet & Food Production</h4>
+              <p>Farming crops for livestock eats land and burns resources. A vegan or vegetarian lifestyle reduces dietary footprint emissions by up to 70% compared to beef-heavy eating.</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-icon waste"><i class="fas fa-dumpster"></i></div>
+            <div class="info-card-body">
+              <h4>Waste & Supply Chains</h4>
+              <p>Throwing goods into landfills generates heavy methane pockets. Circular choices like thirfting clothes, composting, and strict aluminum/glass recycling preserve natural sinks.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Floating Live Footprint Gauge Widget (Shown on Tracker tab) -->
+  <div id="live-gauge-widget" class="panel live-gauge-hidden">
+    <div class="live-gauge-header">
+      <span><i class="fas fa-leaf"></i> Live Estimate</span>
+    </div>
+    <div class="live-gauge-body">
+      <div class="live-val-wrap">
+        <span class="live-val" id="live-footprint-val">0.0</span>
+        <span class="live-unit">t CO2e/yr</span>
+      </div>
+      <div class="live-gauge-indicator-bar">
+        <div id="live-indicator-fill"></div>
+      </div>
+      <div class="live-compare-label" id="live-compare-label">Loading...</div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
