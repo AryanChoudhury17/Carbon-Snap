@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Load state from local storage
 function loadStateFromLocalStorage() {
-  const savedState = localStorage.getItem('terraStepState');
+  const savedState = localStorage.getItem('carbonSnapState');
   if (savedState) {
     try {
       const parsed = JSON.parse(savedState);
@@ -41,7 +41,7 @@ function loadStateFromLocalStorage() {
 
 // Save state to local storage
 function saveStateToLocalStorage() {
-  localStorage.setItem('terraStepState', JSON.stringify(state));
+  localStorage.setItem('carbonSnapState', JSON.stringify(state));
 }
 
 // Sync inputs state into form elements

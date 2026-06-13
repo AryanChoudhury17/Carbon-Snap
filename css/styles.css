@@ -1,4 +1,4 @@
-/* EcoTrace / TerraStep Styling System */
+/* EcoTrace / Carbon Snap Styling System */
 
 /* Global Variables and Custom Theme System */
 :root {
@@ -792,6 +792,7 @@ header {
 /* Beautiful Custom Input Ranges */
 input[type="range"].form-range {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 6px;
   background: #1e293b;
