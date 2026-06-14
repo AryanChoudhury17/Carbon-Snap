@@ -1,4 +1,5 @@
 import { EMISSION_FACTORS, PRESETS, ECO_ACTIONS } from './actions.js';
+import { calculateFootprint } from "./calculator.js";
 
 // Application State
 let state = {
@@ -201,84 +202,12 @@ function setupInputListeners() {
   });
 }
 
-// Calculate carbon footprint values in metric tons CO2e per year
-function calculateFootprint() {
-  const inp = state.inputs;
-  
-  // 1. Home Energy Carbon
-  const rawElectricityCarbon = (inp.electricity * 12) * EMISSION_FACTORS.electricity / 1000;
-  // Reduce electricity footprint by green energy percentage
-  const energyElectricity = rawElectricityCarbon * (1 - inp.greenElectricity / 100);
-  
-  const heatingType = inp.heatingType;
-  const factor = EMISSION_FACTORS.heating[heatingType] || 0.18;
-  const energyHeating = (inp.heatingAmount * 12) * factor / 1000;
-  
-  const totalEnergy = energyElectricity + energyHeating;
-  
-  // 2. Transportation Carbon
-  const carFactor = EMISSION_FACTORS.vehicle[inp.carType] || 0.17;
-  const transCar = inp.carDist * carFactor / 1000;
-  
-  const transBus = (inp.busHours * 52) * EMISSION_FACTORS.transit.bus / 1000;
-  const transTrain = (inp.trainHours * 52) * EMISSION_FACTORS.transit.train / 1000;
-  
-  const transFlights = (inp.flightShort * EMISSION_FACTORS.flights.short / 1000) +
-                       (inp.flightLong * EMISSION_FACTORS.flights.long / 1000);
-                       
-  const totalTransport = transCar + transBus + transTrain + transFlights;
-  
-  // 3. Diet & Food Carbon
-  const dietBase = EMISSION_FACTORS.diet[inp.dietType] || 1.7;
-  // Reduce base footprint slightly by local food score (up to 10% reduction)
-  const localFoodReduction = dietBase * (0.10 * inp.localFood / 100);
-  // Food waste penalty (average standard is around 15% waste. Add penalty for high waste)
-  const wastePenalty = Math.max(0, (inp.foodWaste - 12) * 0.015);
-  
-  const totalFood = (dietBase - localFoodReduction) + wastePenalty;
-  
-  // 4. Waste & Shopping Carbon
-  const baseGarbage = inp.wasteBags * EMISSION_FACTORS.wastePerBag / 1000;
-  // Average recycling reduces garbage carbon by up to 60%
-  const averageRecyclingPercent = (inp.recyclePaper + inp.recyclePlastic + inp.recycleGlass) / 3;
-  const recyclingSavings = baseGarbage * (0.60 * averageRecyclingPercent / 100);
-  const wasteGarbage = baseGarbage - recyclingSavings;
-  
-  const shoppingCarbon = EMISSION_FACTORS.shopping[inp.shoppingStyle] || 1.2;
-  
-  const totalWaste = wasteGarbage + shoppingCarbon;
-  
-  // Gross calculations
-  const grossTotal = totalEnergy + totalTransport + totalFood + totalWaste;
-  
-  // Calculations of pledged reductions
-  let totalSavingsKg = 0;
-  state.activePledges.forEach(pledgeId => {
-    const actionObj = ECO_ACTIONS.find(a => a.id === pledgeId);
-    if (actionObj) {
-      totalSavingsKg += actionObj.saving;
-    }
-  });
-  
-  const pledgeReductions = totalSavingsKg / 1000; // convert to tons
-  // Clamp net total so it doesn't go below 0.1 tons (everyone has some base footprint)
-  const netTotal = Math.max(0.1, grossTotal - pledgeReductions);
-  
-  return {
-    energy: totalEnergy,
-    transport: totalTransport,
-    food: totalFood,
-    waste: totalWaste,
-    gross: grossTotal,
-    reductions: pledgeReductions,
-    net: netTotal
-  };
-}
-
 // Update UI and Dashboard components
 function updateDashboard() {
-  const results = calculateFootprint();
-  
+  const results = calculateFootprint(
+  state.inputs,
+  state.activePledges
+);
   // Update big totals
   document.getElementById('gross-footprint-val').textContent = results.gross.toFixed(1);
   document.getElementById('net-footprint-val').textContent = results.net.toFixed(1);

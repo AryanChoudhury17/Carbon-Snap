@@ -1,0 +1,25 @@
+{
+  "name": "ide-promptwar",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AryanChoudhury17/Carbon-Snap.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AryanChoudhury17/Carbon-Snap/issues"
+  },
+  "homepage": "https://github.com/AryanChoudhury17/Carbon-Snap#readme",
+  "devDependencies": {
+    "jest-environment-jsdom": "^30.4.1",
+    "vitest": "^4.1.8"
+  }
+}
