@@ -31,6 +31,7 @@
 - [⚙️ How It Works](#️-how-it-works)
 - [📐 Emission Calculation Model](#-emission-calculation-model)
 - [🚀 Getting Started](#-getting-started)
+- [🧪 Testing](#-testing)
 - [☁️ Deployment](#️-deployment)
 - [🛠️ Tech Stack](#️-tech-stack)
 - [🤝 Contributing](#-contributing)
@@ -154,19 +155,22 @@ A built-in education module that explains:
 ```
 carbon-snap/
 │
-├── index.html          # Single-page application shell, all UI markup
-├── vercel.json         # Vercel deployment config (cache headers, clean URLs)
-├── .gitignore          # Standard ignores for OS, editor, Node, Vercel files
+├── index.html              # Main application interface
+├── package.json            # Project metadata and dependencies
+├── package-lock.json       # Locked dependency versions
+├── vercel.json             # Vercel deployment configuration
+├── .gitignore              # Git ignore rules
 │
 ├── css/
-│   └── styles.css      # Complete design system — variables, layout, components, animations
+│   └── styles.css          # Styling and responsive design
 │
-└── js/
-    ├── app.js          # Core application logic (ESM):
-    │                   #   state management, calculation engine,
-    │                   #   DOM rendering, Chart.js, localStorage
-    └── actions.js      # Data layer:
-                        #   EMISSION_FACTORS, PRESETS, ECO_ACTIONS catalog
+├── js/
+│   ├── app.js              # UI logic, state management, DOM updates
+│   ├── calculator.js       # Carbon footprint calculation engine
+│   └── actions.js          # Emission factors, presets, and eco actions
+│
+└── tests/
+    └── calculator.test.js  # Automated unit tests using Vitest
 ```
 
 > Built as a **pure vanilla SPA** — no build tools, no bundlers, no npm dependencies required at runtime. ESM (`type="module"`) imports keep the code modular and clean.
@@ -296,6 +300,27 @@ python -m http.server 8000
 
 ---
 
+## 🧪 Testing
+
+CarbonSnap includes automated unit tests powered by **Vitest** to verify the correctness of the carbon footprint calculation engine.
+
+### Run the tests
+
+```bash
+npm test
+```
+
+### Test Coverage
+
+The current test suite validates:
+
+- Carbon footprint calculation for different presets
+- Comparison between Eco and High emission profiles
+- Carbon reduction after applying eco pledges
+- Multiple pledge combinations
+- Minimum footprint threshold enforcement
+- Correct structure of calculation results
+```
 ## ☁️ Deployment
 
 ### 🚀 Vercel (Recommended — Zero Config)
